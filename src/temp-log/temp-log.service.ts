@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTempLogDto } from './dto/temp-log.dto';
-import { UpdateTempLogDto } from './dto/update-temp-log.dto';
+import { CreateTempLogDto, UpdateTempLogDto } from './dto/temp-log.dto';
 
 @Injectable()
 export class TempLogService {
