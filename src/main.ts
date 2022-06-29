@@ -14,7 +14,7 @@ async function bootstrap() {
 
   app.use(helmet());
   app.set('trust proxy', 1);
-  app.enableCors({ origin: config.get('app.cors'), credentials: true });
+  app.enableCors();
 
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
@@ -49,10 +49,6 @@ async function bootstrap() {
       'App',
     );
     console.info(`Connected to db "${config.get('db.name')}"`, 'Database');
-    console.info(
-      JSON.stringify(config.get('app.cors').map((v) => v.toString())),
-      'CORS',
-    );
   });
 }
 bootstrap();
