@@ -4,8 +4,8 @@ import { IsString } from 'class-validator';
 import { IStation } from '../models/station.model';
 
 export class StationDto implements IStation {
-  @IsString()
   @ApiProperty({ description: 'Name of the station' })
+  @IsString()
   name: string;
 }
 

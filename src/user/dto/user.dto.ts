@@ -1,23 +1,37 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 import { IUser } from '../models/user.model';
 
 export class UserDto implements IUser {
+  @ApiPropertyOptional({
+    description: 'First name for the user',
+    example: 'Stephen',
+  })
   @IsString()
-  @ApiProperty()
+  @IsOptional()
   firstname: string;
 
+  @ApiPropertyOptional({
+    description: 'Last name for the user',
+    example: 'Strange',
+  })
   @IsString()
-  @ApiProperty()
+  @IsOptional()
   lastname: string;
 
+  @ApiProperty({
+    description: 'Username for the user',
+    example: 'stephstrange',
+  })
   @IsString()
-  @ApiProperty()
   username: string;
 
+  @ApiProperty({
+    description: 'Password for the user',
+    example: 'Ss@123',
+  })
   @IsString()
-  @ApiProperty()
   password: string;
 }
 

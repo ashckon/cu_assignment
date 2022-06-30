@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { IStation } from 'src/station/models/station.model';
 import { IUser } from 'src/user/models/user.model';
-import { IsNumber, IsString, ValidateNested } from 'class-validator';
+import { IsNumber, ValidateNested } from 'class-validator';
 import { ITempLog } from '../models/temp-log.model';
 import { ApiProperty } from '@nestjs/swagger';
 import { StationDto } from 'src/station/dto/station.dto';
