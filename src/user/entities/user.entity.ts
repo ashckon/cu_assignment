@@ -4,10 +4,10 @@ import { IUser } from '../models/user.model';
 
 @Entity('users')
 export class User extends Base implements IUser {
-  @Column()
+  @Column({ nullable: true })
   firstname: string;
 
-  @Column()
+  @Column({ nullable: true })
   lastname: string;
 
   @Column()

@@ -26,16 +26,16 @@ export class TempLogController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.tempLogService.findOne(+id);
+    return this.tempLogService.findOne(id);
   }
 
-  @Patch(':id')
+  /* @Patch(':id')
   update(@Param('id') id: string, @Body() updateTempLogDto: UpdateTempLogDto) {
     return this.tempLogService.update(+id, updateTempLogDto);
-  }
+  } */
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.tempLogService.remove(+id);
+    return this.tempLogService.remove(id);
   }
 }

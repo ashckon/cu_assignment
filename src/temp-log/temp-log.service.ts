@@ -1,25 +1,43 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateTempLogDto, UpdateTempLogDto } from './dto/temp-log.dto';
+import { TempLog } from './entities/temp-log.entity';
 
 @Injectable()
 export class TempLogService {
-  create(createTempLogDto: CreateTempLogDto) {
-    return 'This action adds a new tempLog';
+  constructor(
+    @InjectRepository(TempLog)
+    private tempLogRepository: Repository<TempLog>,
+  ) {}
+
+  async create(createTempLogDto: CreateTempLogDto): Promise<TempLog> {
+    const newTempLog = await this.tempLogRepository
+      .create(createTempLogDto)
+      .save();
+    return newTempLog;
   }
 
-  findAll() {
-    return `This action returns all tempLog`;
+  async findAll(): Promise<TempLog[]> {
+    return await this.tempLogRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tempLog`;
+  async findOne(id: string): Promise<TempLog> {
+    const tempLogFound = await this.tempLogRepository.findOneBy({ id });
+    if (!tempLogFound) {
+      throw new NotFoundException(`Temp log not found`);
+    }
+    return tempLogFound;
   }
 
-  update(id: number, updateTempLogDto: UpdateTempLogDto) {
+  /* update(id: number, updateTempLogDto: UpdateTempLogDto) {
     return `This action updates a #${id} tempLog`;
-  }
+  } */
 
-  remove(id: number) {
-    return `This action removes a #${id} tempLog`;
+  async remove(id: string) {
+    const tempLogfound = await this.findOne(id);
+    if (tempLogfound) {
+      await this.tempLogRepository.delete(id);
+    }
   }
 }
