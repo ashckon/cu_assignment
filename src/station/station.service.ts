@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '@root/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateStationDto, UpdateStationDto } from './dto/station.dto';
 import { Station } from './entities/station.entity';
@@ -25,7 +26,7 @@ export class StationService {
   async findOne(id: string): Promise<Station> {
     const stationFound = await this.stationRepository.findOneBy({ id });
     if (!stationFound) {
-      throw new NotFoundException(`Station not found`);
+      throw new HttpException(`Station not found`, HttpStatus.NOT_FOUND);
     }
     return stationFound;
   }
@@ -37,7 +38,7 @@ export class StationService {
   async remove(id: string) {
     const stationfound = await this.findOne(id);
     if (stationfound) {
-      await this.stationRepository.delete(id);
+      await this.stationRepository.remove(stationfound);
     }
   }
 }

@@ -9,5 +9,6 @@ const UserRepository = TypeOrmModule.forFeature([User]);
   imports: [UserRepository],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService, UserRepository],
 })
 export class UserModule {}

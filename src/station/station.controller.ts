@@ -6,11 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { StationService } from './station.service';
 import { CreateStationDto, UpdateStationDto } from './dto/station.dto';
+import { AuthGuard } from '@nestjs/passport';
+import RequestWithUser from '@root/auth/requestWithUser.interface';
 
 @Controller('stations')
+@UseGuards(AuthGuard())
 export class StationController {
   constructor(private readonly stationService: StationService) {}
 

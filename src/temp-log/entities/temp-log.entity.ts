@@ -9,11 +9,11 @@ export class TempLog extends Base implements ITempLog {
   @Column()
   temperature: number;
 
-  @ManyToOne(() => Station)
+  @ManyToOne(() => Station, (station: Station) => station.tempLogs)
   @JoinColumn()
   station: Station;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, (user: User) => user.tempLogs)
   @JoinColumn()
   user: User;
 }

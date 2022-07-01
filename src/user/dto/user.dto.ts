@@ -1,6 +1,12 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { IUser } from '../models/user.model';
 
 export class UserDto implements IUser {
@@ -32,6 +38,11 @@ export class UserDto implements IUser {
     example: 'Ss@123',
   })
   @IsString()
+  @MinLength(6)
+  @MaxLength(32)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message: 'password is too weak',
+  })
   password: string;
 }
 

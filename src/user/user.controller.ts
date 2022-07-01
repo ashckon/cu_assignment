@@ -6,11 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
+@UseGuards(AuthGuard())
+@UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -25,8 +31,8 @@ export class UserController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  findbyId(@Param('id') id: string) {
+    return this.userService.findById(id);
   }
 
   /* @Patch(':id')
