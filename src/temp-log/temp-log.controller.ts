@@ -8,11 +8,13 @@ import {
   Delete,
   UseGuards,
   Req,
+  UseInterceptors,
+  CacheInterceptor,
+  CacheTTL,
 } from '@nestjs/common';
 import { TempLogService } from './temp-log.service';
 import { CreateTempLogDto, UpdateTempLogDto } from './dto/temp-log.dto';
 import { AuthGuard } from '@nestjs/passport';
-import RequestWithUser from '@root/auth/requestWithUser.interface';
 import { User } from '@root/user/entities/user.entity';
 import { GetUser } from '@root/auth/get-user.decorator';
 
@@ -27,8 +29,8 @@ export class TempLogController {
   }
 
   @Get()
-  findAll(@Req() req: RequestWithUser) {
-    return this.tempLogService.findAll(req.user);
+  findAll(@GetUser() user: User) {
+    return this.tempLogService.findAll(user);
   }
 
   @Get(':id')

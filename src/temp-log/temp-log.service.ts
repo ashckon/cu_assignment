@@ -1,4 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StationService } from '@root/station/station.service';
 import { User } from '@root/user/entities/user.entity';
@@ -12,6 +19,7 @@ export class TempLogService {
     @InjectRepository(TempLog)
     private readonly tempLogRepository: Repository<TempLog>,
     private readonly stationService: StationService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async create(
@@ -19,11 +27,24 @@ export class TempLogService {
     user: User,
   ): Promise<TempLog> {
     const { stationId } = createTempLogDto;
-    console.log(stationId);
+
+    // check if user has reported a temperature log less than a minute ago
+    const userCachedLog = await this.cacheManager.get(user.id);
+    if (userCachedLog !== undefined) {
+      throw new HttpException(
+        'You can only log a temperature once a minute',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const station = await this.stationService.findOne(stationId);
     const newTempLog = await this.tempLogRepository
       .create({ ...createTempLogDto, user, station })
       .save();
+
+    // caching the log for one minute
+    await this.cacheManager.set(user.id, new Date(), { ttl: 60 });
+
     return newTempLog;
   }
 
