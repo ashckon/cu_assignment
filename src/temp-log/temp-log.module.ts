@@ -4,11 +4,19 @@ import { TempLogController } from './temp-log.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TempLog } from './entities/temp-log.entity';
 import { StationModule } from '@root/station/station.module';
+import { CustomFunction } from '@root/common/utils';
+import { StatsModule } from '@root/utils/stats/stats.module';
 
 const TempLogRepository = TypeOrmModule.forFeature([TempLog]);
 const MemoryCacheModule = CacheModule.register();
 @Module({
-  imports: [TempLogRepository, StationModule, MemoryCacheModule],
+  imports: [
+    TempLogRepository,
+    StationModule,
+    MemoryCacheModule,
+    CustomFunction,
+    StatsModule,
+  ],
   controllers: [TempLogController],
   providers: [TempLogService],
 })

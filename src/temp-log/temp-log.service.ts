@@ -6,12 +6,16 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
+import moment from 'moment';
 import { InjectRepository } from '@nestjs/typeorm';
 import { StationService } from '@root/station/station.service';
 import { User } from '@root/user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { CreateTempLogDto, UpdateTempLogDto } from './dto/temp-log.dto';
 import { TempLog } from './entities/temp-log.entity';
+import { StatsService } from '@root/utils/stats/stats.service';
+import { LogStats } from '@root/utils/stats/stats.model';
+import { TempLogFilterDto } from './dto/temp-log-filter.dto';
 
 @Injectable()
 export class TempLogService {
@@ -19,6 +23,7 @@ export class TempLogService {
     @InjectRepository(TempLog)
     private readonly tempLogRepository: Repository<TempLog>,
     private readonly stationService: StationService,
+    private readonly statsService: StatsService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -49,10 +54,86 @@ export class TempLogService {
   }
 
   async findAll(user: User): Promise<TempLog[]> {
-    const tempLogs = await this.tempLogRepository.findBy({
-      user: { id: user.id },
+    const tempLogs = await this.tempLogRepository.find({
+      where: { user: { id: user.id } },
+      order: { createdAt: 'ASC' },
     });
     return tempLogs;
+  }
+
+  async getStatisticalTempLogData(
+    filter: TempLogFilterDto,
+    user: User,
+  ): Promise<LogStats> {
+    let tempLogs = await this.findAll(user);
+    if (tempLogs.length) {
+      // find templogs within the provided date range
+
+      const { startDate, endDate } = filter;
+      if (Object.keys(filter).length) {
+        // validation: both start and end dates must be provided
+        if (
+          !Object.keys(filter).includes('startDate') ||
+          !Object.keys(filter).includes('endDate')
+        ) {
+          throw new HttpException(
+            'Please specify both start and end date!',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
+        // validation: start date cannot be greater than the date of user's last log
+
+        if (
+          moment(startDate).isAfter(
+            moment(tempLogs[tempLogs.length - 1].createdAt),
+          )
+        ) {
+          throw new HttpException(
+            'Start date must be less than or equal the last log date!',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
+        // validation: start date cannot be greater than end date
+        if (moment(startDate).isAfter(moment(endDate))) {
+          throw new HttpException(
+            'Start date cannot be greater than end date!',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
+        // return temp logs within the provided range
+        const filteredTempLogs = tempLogs.filter((templog) =>
+          moment(templog.createdAt)
+            .utc()
+            .isBetween(
+              moment(startDate).utc(),
+              moment(endDate).utc(),
+              'days',
+              '[]',
+            ),
+        );
+
+        if (filteredTempLogs.length === 0) {
+          throw new HttpException(
+            'No temp log found between the specified date range!',
+            HttpStatus.NOT_FOUND,
+          );
+        }
+        tempLogs = filteredTempLogs;
+      }
+
+      const temperatures: Array<number> = [];
+      await Promise.all(
+        tempLogs.map(async (templog) => {
+          temperatures.push(templog.temperature);
+        }),
+      );
+      temperatures.sort((a, b) => a - b);
+
+      return this.statsService.stats(temperatures);
+    }
   }
 
   async findOne(id: string, user: User): Promise<TempLog> {

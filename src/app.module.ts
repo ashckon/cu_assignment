@@ -5,6 +5,7 @@ import { TempLogModule } from './temp-log/temp-log.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dbConfig } from './core/database/db-config';
 import { AuthModule } from './auth/auth.module';
+import { StatsModule } from './utils/stats/stats.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     TempLogModule,
     AuthModule,
+    StatsModule,
   ],
 })
 export class AppModule {}
