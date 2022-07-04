@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Query,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { TempLogService } from './temp-log.service';
 import { CreateTempLogDto, UpdateTempLogDto } from './dto/temp-log.dto';
@@ -27,8 +29,19 @@ export class TempLogController {
   }
 
   @Get()
-  findAll(@GetUser() user: User) {
-    return this.tempLogService.findAll(user);
+  findAllTempLogs(@GetUser() user: User) {
+    if (!user.isAdmin) {
+      throw new HttpException(
+        'Admin rights required to retrieve all logs!',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    return this.tempLogService.findAllTempLogs();
+  }
+
+  @Get('/my-logs')
+  findAllMyLogs(@GetUser() user: User) {
+    return this.tempLogService.findAllMyLogs(user);
   }
 
   @Get('/my-log-stats')

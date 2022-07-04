@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import config from './config';
+import { UserService } from './user/user.service';
 
 async function bootstrap() {
   const env = config.get('app.env');
@@ -51,5 +52,8 @@ async function bootstrap() {
     );
     console.info(`Connected to db "${config.get('db.name')}"`, 'Database');
   });
+
+  const userService = app.get<UserService>(UserService);
+  await userService.createFirstAdminUser();
 }
 bootstrap();

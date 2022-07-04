@@ -7,15 +7,16 @@ import {
 } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import moment from 'moment';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { StationService } from '@root/station/station.service';
 import { User } from '@root/user/entities/user.entity';
-import { Between, Repository } from 'typeorm';
-import { CreateTempLogDto, UpdateTempLogDto } from './dto/temp-log.dto';
-import { TempLog } from './entities/temp-log.entity';
+import { UserService } from '@root/user/user.service';
 import { StatsService } from '@root/utils/stats/stats.service';
+import { StationService } from '@root/station/station.service';
+import { TempLog } from './entities/temp-log.entity';
 import { LogStats } from '@root/utils/stats/stats.model';
 import { TempLogFilterDto } from './dto/temp-log-filter.dto';
+import { CreateTempLogDto, UpdateTempLogDto } from './dto/temp-log.dto';
 
 @Injectable()
 export class TempLogService {
@@ -23,6 +24,7 @@ export class TempLogService {
     @InjectRepository(TempLog)
     private readonly tempLogRepository: Repository<TempLog>,
     private readonly stationService: StationService,
+    private readonly userService: UserService,
     private readonly statsService: StatsService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
@@ -53,7 +55,14 @@ export class TempLogService {
     return newTempLog;
   }
 
-  async findAll(user: User): Promise<TempLog[]> {
+  async findAllTempLogs(): Promise<TempLog[]> {
+    const tempLogs = await this.tempLogRepository.find({
+      order: { createdAt: 'ASC' },
+    });
+    return tempLogs;
+  }
+
+  async findAllMyLogs(user: User): Promise<TempLog[]> {
     const tempLogs = await this.tempLogRepository.find({
       where: { user: { id: user.id } },
       order: { createdAt: 'ASC' },
@@ -65,7 +74,7 @@ export class TempLogService {
     filter: TempLogFilterDto,
     user: User,
   ): Promise<LogStats> {
-    let tempLogs = await this.findAll(user);
+    let tempLogs = await this.findAllMyLogs(user);
     if (tempLogs.length) {
       // find templogs within the provided date range
 
@@ -137,15 +146,20 @@ export class TempLogService {
   }
 
   async findOne(id: string, user: User): Promise<TempLog> {
-    const tempLogFound = await this.tempLogRepository.findOneBy({
-      id,
-      user: { id: user.id },
-    });
+    if (user.isAdmin) {
+      const tempLogFound = await this.tempLogRepository.findOneBy({ id });
+      return tempLogFound;
+    } else {
+      const tempLogFound = await this.tempLogRepository.findOneBy({
+        id,
+        user: { id: user.id },
+      });
 
-    if (!tempLogFound) {
-      throw new HttpException(`TempLog not found`, HttpStatus.NOT_FOUND);
+      if (!tempLogFound) {
+        throw new HttpException(`TempLog not found`, HttpStatus.NOT_FOUND);
+      }
+      return tempLogFound;
     }
-    return tempLogFound;
   }
 
   async update(

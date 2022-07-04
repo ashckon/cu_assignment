@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsOptional,
   IsString,
   Matches,
@@ -35,15 +36,18 @@ export class UserDto implements IUser {
 
   @ApiProperty({
     description: 'Password for the user',
-    example: 'Ss@123',
   })
   @IsString()
-  @MinLength(6)
+  @MinLength(5)
   @MaxLength(32)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+  /* @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message: 'password is too weak',
-  })
+  }) */
   password: string;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  isAdmin: boolean;
 }
 
 export class CreateUserDto extends PartialType(UserDto) {}

@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
@@ -44,6 +45,17 @@ export class UserService {
     const userfound = await this.findById(id);
     if (userfound) {
       await this.userRepository.remove(userfound);
+    }
+  }
+
+  async createFirstAdminUser() {
+    const adminExists = await this.findByUsername('admin');
+    if (!adminExists) {
+      await this.create({
+        username: 'admin',
+        password: await bcrypt.hash('admin', 10),
+        isAdmin: true,
+      });
     }
   }
 }

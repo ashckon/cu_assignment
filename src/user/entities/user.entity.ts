@@ -19,6 +19,9 @@ export class User extends Base implements IUser {
   @Exclude()
   password: string;
 
+  @Column({ default: false })
+  isAdmin: boolean;
+
   @OneToMany(() => TempLog, (tempLog: TempLog) => tempLog.user)
   tempLogs: TempLog[];
 }

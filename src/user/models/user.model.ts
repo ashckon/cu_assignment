@@ -5,4 +5,5 @@ export interface IUser extends IBaseEntity {
   lastname: string;
   username: string;
   password: string;
+  isAdmin: boolean;
 }

@@ -47,7 +47,7 @@ export class AuthService {
       return { accessToken };
     } catch (error) {
       throw new HttpException(
-        'Please make sure you provid valid login credentials',
+        'Invalid login credentials',
         HttpStatus.UNAUTHORIZED,
       );
     }
