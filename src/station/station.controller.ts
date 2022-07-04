@@ -12,8 +12,10 @@ import {
 import { StationService } from './station.service';
 import { CreateStationDto, UpdateStationDto } from './dto/station.dto';
 import { AuthGuard } from '@nestjs/passport';
-import RequestWithUser from '@root/auth/requestWithUser.interface';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Station')
+@ApiBearerAuth()
 @Controller('stations')
 @UseGuards(AuthGuard())
 export class StationController {
