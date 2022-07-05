@@ -14,6 +14,7 @@ import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AdminUser } from '@root/auth/admin-user.decorator';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -24,13 +25,17 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  create(@Body() createUserDto: CreateUserDto, @AdminUser() isAdmin: boolean) {
+    if (isAdmin) {
+      return this.userService.create(createUserDto);
+    }
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@AdminUser() isAdmin: boolean) {
+    if (isAdmin) {
+      return this.userService.findAll();
+    }
   }
 
   @Get(':id')

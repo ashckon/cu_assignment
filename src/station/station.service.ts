@@ -31,14 +31,19 @@ export class StationService {
     return stationFound;
   }
 
-  /* update(id: number, updateStationDto: UpdateStationDto) {
-    return `This action updates a #${id} station`;
-  } */
+  async update(id: string, updateStationDto: UpdateStationDto) {
+    const { name } = updateStationDto;
+    const station = await this.findOne(id);
+    station.name = name;
+    await station.save();
+    return station;
+  }
 
   async remove(id: string) {
     const stationfound = await this.findOne(id);
     if (stationfound) {
       await this.stationRepository.remove(stationfound);
     }
+    throw new HttpException('Station deleted!', HttpStatus.OK);
   }
 }

@@ -9,7 +9,6 @@ import {
   UseGuards,
   Query,
   HttpStatus,
-  HttpException,
 } from '@nestjs/common';
 import { TempLogService } from './temp-log.service';
 import { CreateTempLogDto, UpdateTempLogDto } from './dto/temp-log.dto';
@@ -23,6 +22,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AdminUser } from '@root/auth/admin-user.decorator';
 
 @ApiTags('TempLog')
 @ApiBearerAuth()
@@ -43,14 +43,10 @@ export class TempLogController {
     status: HttpStatus.UNAUTHORIZED,
     description: 'Admin rights required to retrieve all logs!',
   })
-  findAllTempLogs(@GetUser() user: User) {
-    if (!user.isAdmin) {
-      throw new HttpException(
-        'Admin rights required to retrieve all logs!',
-        HttpStatus.UNAUTHORIZED,
-      );
+  findAllTempLogs(@AdminUser() isAdmin: boolean) {
+    if (isAdmin) {
+      return this.tempLogService.findAllTempLogs();
     }
-    return this.tempLogService.findAllTempLogs();
   }
 
   @Get('/my-logs')
